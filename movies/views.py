@@ -87,10 +87,20 @@ def movie_list(request):
 
 # 인기 영화 전체보기 클릭시 1~34페이지 까지, 35페이지 이상 요청할 시 에러 구현해야함
 @api_view(['GET'])
-def movie_popular_list(request, page):
+def popular_movie_list(request, page):
     movies = get_list_or_404(Movie)
     page_movies = []
     for i in range((page-1)*30+1, (page-1)*30+30):
+        page_movies.append(movies[i])
+    serializer = MovieSerializer(page_movies, many=True)
+    return Response(serializer.data)
+
+# 홈 화면에 노출될 인기영화 초기 요청
+@api_view(['GET'])
+def popular_movie_init(request):
+    movies = get_list_or_404(Movie)
+    page_movies = []
+    for i in range(1, 21):
         page_movies.append(movies[i])
     serializer = MovieSerializer(page_movies, many=True)
     return Response(serializer.data)
