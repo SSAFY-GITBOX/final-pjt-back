@@ -85,6 +85,7 @@ def movie_list(request):
     serializer = MovieSerializer(movies, many=True)
     return Response(serializer.data)
 
+# 인기 영화 전체보기 클릭시 1~34페이지 까지, 35페이지 이상 요청할 시 에러 구현해야함
 @api_view(['GET'])
 def movie_popular_list(request, page):
     movies = get_list_or_404(Movie)
