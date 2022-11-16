@@ -16,3 +16,4 @@ class Movie(models.Model):
     poster_path = models.CharField(max_length=200, blank=True)
     video_path = models.CharField(max_length=200, blank=True)
     genres = models.ManyToManyField(Genre)
+
