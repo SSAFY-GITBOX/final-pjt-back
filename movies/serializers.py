@@ -34,6 +34,9 @@ class MovieSerializer(serializers.ModelSerializer):
 
     def get_comment_rating_avg(self, obj):
         total = 0
-        for comment in obj.comment_set.all():
-            total += comment.rating
-        return total / len(obj.comment_set.all())
+        if len(obj.comment_set.all()) == 0:
+            return 0
+        else:
+            for comment in obj.comment_set.all():
+                total += comment.rating
+            return total / len(obj.comment_set.all())
