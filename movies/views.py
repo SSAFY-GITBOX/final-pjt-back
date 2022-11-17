@@ -10,8 +10,53 @@ from .models import Movie, Genre, Actor
 from .serializers import MovieSerializer, ActorSerializer
 
 
+# 영화 전체 조회 없어도 될듯?
+# @api_view(['GET'])
+# def movie_list(request):
+#     movies = get_list_or_404(Movie)
+#     serializer = MovieSerializer(movies, many=True)
+#     return Response(serializer.data)
+
+
+# 인기 영화 전체보기 클릭시 1~34페이지 까지, 35페이지 이상 요청할 시 에러 구현해야함
 @api_view(['GET'])
-def makeFixtures(request):
+def popular_movie_list(request, page):
+    movies = get_list_or_404(Movie)
+    page_movies = []
+    for i in range((page-1)*30+1, (page-1)*30+30):
+        page_movies.append(movies[i])
+    serializer = MovieSerializer(page_movies, many=True)
+    return Response(serializer.data)
+
+
+# 홈 화면에 노출될 인기영화 초기 요청
+@api_view(['GET'])
+def popular_movie_init(request):
+    movies = get_list_or_404(Movie)
+    page_movies = []
+    for i in range(1, 21):
+        page_movies.append(movies[i])
+    serializer = MovieSerializer(page_movies, many=True)
+    return Response(serializer.data)
+
+
+# movie detail GET 요청
+@api_view(['GET'])
+def movie_detail(request, movie_pk):
+    movie = get_object_or_404(Movie, pk=movie_pk)
+    serializer = MovieSerializer(movie)
+    return Response(serializer.data)
+
+
+# actor detail GET 요청
+@api_view(['GET'])
+def actor_detail(request, actor_pk):
+    actor = get_object_or_404(Actor, pk=actor_pk)
+    serializer = ActorSerializer(actor)
+    return Response(serializer.data)
+
+# @api_view(['GET'])
+# def makeFixtures(request):
     # # 1. Top Rated Movies API request ===================================================================
     # for page in range(1, 51):
     #     response = requests.get(f'https://api.themoviedb.org/3/movie/top_rated?api_key=8d8e9b9672f4d1a183be6806ad451223&language=ko-KR&page={page}')
@@ -77,37 +122,4 @@ def makeFixtures(request):
     # actors_json = serializers.serialize('json', actors)
     # with open(r'actors.json', 'w', encoding="UTF-8") as actors_file:
     #     actors_file.write(actors_json)
-    return
-
-@api_view(['GET'])
-def movie_list(request):
-    movies = get_list_or_404(Movie)
-    serializer = MovieSerializer(movies, many=True)
-    return Response(serializer.data)
-
-# 인기 영화 전체보기 클릭시 1~34페이지 까지, 35페이지 이상 요청할 시 에러 구현해야함
-@api_view(['GET'])
-def popular_movie_list(request, page):
-    movies = get_list_or_404(Movie)
-    page_movies = []
-    for i in range((page-1)*30+1, (page-1)*30+30):
-        page_movies.append(movies[i])
-    serializer = MovieSerializer(page_movies, many=True)
-    return Response(serializer.data)
-
-# 홈 화면에 노출될 인기영화 초기 요청
-@api_view(['GET'])
-def popular_movie_init(request):
-    movies = get_list_or_404(Movie)
-    page_movies = []
-    for i in range(1, 21):
-        page_movies.append(movies[i])
-    serializer = MovieSerializer(page_movies, many=True)
-    return Response(serializer.data)
-
-# movie detail GET 요청
-@api_view(['GET'])
-def movie_detail(request, movie_pk):
-    movie = get_object_or_404(Movie, pk=movie_pk)
-    serializer = MovieSerializer(movie)
-    return Response(serializer.data)
+    # return
