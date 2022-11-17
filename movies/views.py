@@ -1,5 +1,9 @@
 from django.shortcuts import render
 
+# permission Decorators
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import IsAuthenticated
+
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -25,6 +29,7 @@ from .serializers import GenreListSerializer, ActorSerializer, CommentSerializer
 
 # 인기 영화 전체보기 클릭시 1~34페이지 까지, 35페이지 이상 요청할 시 에러 구현해야함
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def popular_movie_list(request):
     movies = get_list_or_404(Movie)
     res_movies = []
@@ -46,6 +51,7 @@ def popular_movie_list(request):
 
 
 # 모든 장르 조회
+@permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def genre_list(request):
     genres = get_list_or_404(Genre)
@@ -54,9 +60,9 @@ def genre_list(request):
 
 
 # 장르별 영화 조회
+@permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def genre_movie_list(request, genre_id):
-    print('???')
     genre = get_object_or_404(Genre, pk=genre_id)
     movies = Movie.objects.filter(genres=genre)
     res_movies = []
@@ -78,6 +84,7 @@ def genre_movie_list(request, genre_id):
 
 
 # 홈 화면에 노출될 인기영화 초기 요청
+@permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def popular_movie_init(request):
     movies = get_list_or_404(Movie)
@@ -89,6 +96,7 @@ def popular_movie_init(request):
 
 
 # movie detail GET 요청
+@permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def movie_detail(request, movie_pk):
     movie = get_object_or_404(Movie, pk=movie_pk)
@@ -97,6 +105,7 @@ def movie_detail(request, movie_pk):
 
 
 # actor detail GET 요청
+@permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def actor_detail(request, actor_pk):
     actor = get_object_or_404(Actor, pk=actor_pk)
@@ -105,16 +114,19 @@ def actor_detail(request, actor_pk):
 
 
 # 영화 코멘트 생성 요청
+@permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def comment_create(request, movie_pk):
+    user = request.user
     movie = get_object_or_404(Movie, pk=movie_pk)
     serializer = CommentSerializer(data=request.data)
     if serializer.is_valid(raise_exception=True):
-        serializer.save(movie=movie)
+        serializer.save(movie=movie, user=user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 # 영화 코멘트 조회, 수정, 삭제
+@permission_classes([IsAuthenticated])
 @api_view(['GET', 'DELETE', 'PUT'])
 def comment_detail(request, comment_pk):
     comment = get_object_or_404(Comment, pk=comment_pk)

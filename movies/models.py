@@ -1,7 +1,5 @@
 from django.db import models
-
-# Create your models here.
-from django.db import models
+from django.conf import settings
 
 # Create your models here.
 class Genre(models.Model):
@@ -31,6 +29,7 @@ class Movie(models.Model):
 
 
 class Comment(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     content = models.TextField()
     rating = models.IntegerField()
