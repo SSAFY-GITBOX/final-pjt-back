@@ -28,3 +28,11 @@ class Movie(models.Model):
     video_path = models.CharField(max_length=200, blank=True)
     genres = models.ManyToManyField(Genre)
     actors = models.ManyToManyField(Actor)
+
+
+class Comment(models.Model):
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    content = models.TextField()
+    rating = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
