@@ -11,7 +11,7 @@ from .serializers import ArticleListSerializer, ArticleSerializer, CommentSerial
 from .models import Article, ArticleComment
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def article_list(request):
     if request.method == 'GET':
