@@ -5,11 +5,13 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from django.shortcuts import render
 from django.core import serializers
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
+
 from django.shortcuts import get_object_or_404, get_list_or_404
 
 from .models import Movie, Genre, Actor, Comment
-from .serializers import MovieSerializer, MovieListSerializer, ActorSerializer, CommentSerializer
+from .serializers import MovieSerializer, MovieListSerializer
+from .serializers import GenreListSerializer, ActorSerializer, CommentSerializer
 
 # Create your views here.
 
@@ -31,22 +33,48 @@ def popular_movie_list(request):
         for i in range(0, 30):
             res_movies.append(movies[i])
     else:
-        for i in range((int(page)-1)*30, int(page)*30):
-            if i < len(movies):
-                res_movies.append(movies[i])
+        if page != '0' and page.isdigit():
+            for i in range((int(page)-1)*30, int(page)*30):
+                if i < len(movies):
+                    res_movies.append(movies[i])
 
     if res_movies:
         serializer = MovieListSerializer(res_movies, many=True)
         return Response(serializer.data)
-    # else:
+    else:
+        raise Http404("Question does not exist")
 
 
+# 모든 장르 조회
+@api_view(['GET'])
+def genre_list(request):
+    genres = get_list_or_404(Genre)
+    serializers = GenreListSerializer(genres, many=True)
+    return Response(serializers.data)
 
 
-    # for i in range((page-1)*30+1, (page-1)*30+30):
-    #     res_movies.append(movies[i])
-    # serializer = MovieListSerializer(res_movies, many=True)
-    # return Response(serializer.data)
+# 장르별 영화 조회
+@api_view(['GET'])
+def genre_movie_list(request, genre_id):
+    print('???')
+    genre = get_object_or_404(Genre, pk=genre_id)
+    movies = Movie.objects.filter(genres=genre)
+    res_movies = []
+    page = request.GET.get('page', None)
+    if page == None:
+        for i in range(0, 30):
+            res_movies.append(movies[i])
+    else:
+        if page != '0' and page.isdigit():
+            for i in range((int(page)-1)*30, int(page)*30):
+                if i < len(movies):
+                    res_movies.append(movies[i])
+
+    if res_movies:
+        serializer = MovieListSerializer(res_movies, many=True)
+        return Response(serializer.data)
+    else:
+        raise Http404("Question does not exist")
 
 
 # 홈 화면에 노출될 인기영화 초기 요청
