@@ -1,6 +1,5 @@
 from django.shortcuts import render
 
-# Create your views here.
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -12,6 +11,7 @@ from django.shortcuts import get_object_or_404, get_list_or_404
 from .models import Movie, Genre, Actor, Comment
 from .serializers import MovieSerializer, MovieListSerializer, ActorSerializer, CommentSerializer
 
+# Create your views here.
 
 # 영화 전체 조회 없어도 될듯?
 # @api_view(['GET'])
@@ -23,13 +23,30 @@ from .serializers import MovieSerializer, MovieListSerializer, ActorSerializer, 
 
 # 인기 영화 전체보기 클릭시 1~34페이지 까지, 35페이지 이상 요청할 시 에러 구현해야함
 @api_view(['GET'])
-def popular_movie_list(request, page):
+def popular_movie_list(request):
     movies = get_list_or_404(Movie)
-    page_movies = []
-    for i in range((page-1)*30+1, (page-1)*30+30):
-        page_movies.append(movies[i])
-    serializer = MovieListSerializer(page_movies, many=True)
-    return Response(serializer.data)
+    res_movies = []
+    page = request.GET.get('page', None)
+    if page == None:
+        for i in range(0, 30):
+            res_movies.append(movies[i])
+    else:
+        for i in range((int(page)-1)*30, int(page)*30):
+            if i < len(movies):
+                res_movies.append(movies[i])
+
+    if res_movies:
+        serializer = MovieListSerializer(res_movies, many=True)
+        return Response(serializer.data)
+    # else:
+
+
+
+
+    # for i in range((page-1)*30+1, (page-1)*30+30):
+    #     res_movies.append(movies[i])
+    # serializer = MovieListSerializer(res_movies, many=True)
+    # return Response(serializer.data)
 
 
 # 홈 화면에 노출될 인기영화 초기 요청
@@ -37,7 +54,7 @@ def popular_movie_list(request, page):
 def popular_movie_init(request):
     movies = get_list_or_404(Movie)
     page_movies = []
-    for i in range(1, 21):
+    for i in range(0, 20):
         page_movies.append(movies[i])
     serializer = MovieListSerializer(page_movies, many=True)
     return Response(serializer.data)
@@ -57,6 +74,7 @@ def actor_detail(request, actor_pk):
     actor = get_object_or_404(Actor, pk=actor_pk)
     serializer = ActorSerializer(actor)
     return Response(serializer.data)
+
 
 # 영화 코멘트 생성 요청
 @api_view(['POST'])
