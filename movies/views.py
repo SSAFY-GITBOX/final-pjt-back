@@ -104,3 +104,10 @@ def popular_movie_init(request):
         page_movies.append(movies[i])
     serializer = MovieSerializer(page_movies, many=True)
     return Response(serializer.data)
+
+# movie detail GET 요청
+@api_view(['GET'])
+def movie_detail(request, movie_pk):
+    movie = get_object_or_404(Movie, pk=movie_pk)
+    serializer = MovieSerializer(movie)
+    return Response(serializer.data)

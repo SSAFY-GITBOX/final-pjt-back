@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     # path('makefixtures/', views.makeFixtures),
     path('movies/', views.movie_list),
+    path('movies/<int:movie_pk>/', views.movie_detail),
     path('movies/popular/init/', views.popular_movie_init),
     path('movies/popular/<int:page>/', views.popular_movie_list),
 ]
