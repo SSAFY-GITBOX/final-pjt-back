@@ -9,6 +9,7 @@ class ArticleListSerializer(serializers.ModelSerializer):
         model = Article
         # fields = ('id', 'title', 'content')
         fields = ('id', 'title', 'content', 'user', 'username')
+        read_only_fields = ('like_users',)
 
 
 class CommentSerializer(serializers.ModelSerializer):
