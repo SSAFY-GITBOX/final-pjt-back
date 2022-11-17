@@ -9,8 +9,8 @@ from django.core import serializers
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, get_list_or_404
 
-from .models import Movie, Genre, Actor
-from .serializers import MovieSerializer, ActorSerializer
+from .models import Movie, Genre, Actor, Comment
+from .serializers import MovieSerializer, MovieListSerializer, ActorSerializer, CommentSerializer
 
 
 # 영화 전체 조회 없어도 될듯?
@@ -28,7 +28,7 @@ def popular_movie_list(request, page):
     page_movies = []
     for i in range((page-1)*30+1, (page-1)*30+30):
         page_movies.append(movies[i])
-    serializer = MovieSerializer(page_movies, many=True)
+    serializer = MovieListSerializer(page_movies, many=True)
     return Response(serializer.data)
 
 
@@ -39,7 +39,7 @@ def popular_movie_init(request):
     page_movies = []
     for i in range(1, 21):
         page_movies.append(movies[i])
-    serializer = MovieSerializer(page_movies, many=True)
+    serializer = MovieListSerializer(page_movies, many=True)
     return Response(serializer.data)
 
 
@@ -57,6 +57,37 @@ def actor_detail(request, actor_pk):
     actor = get_object_or_404(Actor, pk=actor_pk)
     serializer = ActorSerializer(actor)
     return Response(serializer.data)
+
+# 영화 코멘트 생성 요청
+@api_view(['POST'])
+def comment_create(request, movie_pk):
+    movie = get_object_or_404(Movie, pk=movie_pk)
+    serializer = CommentSerializer(data=request.data)
+    if serializer.is_valid(raise_exception=True):
+        serializer.save(movie=movie)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+# 영화 코멘트 조회, 수정, 삭제
+@api_view(['GET', 'DELETE', 'PUT'])
+def comment_detail(request, comment_pk):
+    comment = get_object_or_404(Comment, pk=comment_pk)
+
+    if request.method == 'GET':
+        serializer = CommentSerializer(comment)
+        return Response(serializer.data)
+
+    elif request.method == 'PUT':
+        serializer = CommentSerializer(comment, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+
+    elif request.method == 'DELETE':
+        comment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 
 # @api_view(['GET'])
 # def makeFixtures(request):
