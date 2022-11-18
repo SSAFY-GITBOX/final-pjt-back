@@ -200,7 +200,7 @@ def comment_detail(request, comment_pk):
     #                 break
 
     # # 4. Query to Json =====================================================================================
-    # movies = Movie.objects.all()
+    # movies = Movie.objects.all().order_by('-vote_count')
     # movies_json = serializers.serialize('json', movies)
     # with open(r'movies.json', 'w', encoding="UTF-8") as movies_file:
     #     movies_file.write(movies_json)
@@ -215,3 +215,4 @@ def comment_detail(request, comment_pk):
     # with open(r'actors.json', 'w', encoding="UTF-8") as actors_file:
     #     actors_file.write(actors_json)
     # return
+
