@@ -59,6 +59,23 @@ def genre_list(request):
     return Response(serializers.data)
 
 
+# 장르 선택 초기 요청
+@permission_classes([IsAuthenticated])
+@api_view(['GET'])
+def genre_movie_init(request, genre_id):
+    movies = Movie.objects.filter(genres=genre_id).order_by('-vote_count')
+    init_movies = []
+    for i in range(0, 20):
+        if i < len(movies):
+            init_movies.append(movies[i])
+
+    serializer = MovieListSerializer(init_movies, many=True)
+    context = {
+        'movies': serializer.data,
+        'movie_length': len(movies)
+    }
+    return Response(context)
+
 # 장르별 영화 조회
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
