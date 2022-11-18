@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from rest_framework import status
 from django.shortcuts import get_object_or_404, get_list_or_404
-from .serializers import ArticleListSerializer, ArticleSerializer, CommentSerializer
+from .serializers import ArticleListSerializer, ArticleSerializer, ArticleCommentSerializer
 from .models import Article, ArticleComment
 
 
@@ -27,23 +27,33 @@ def article_list(request):
 
 
 @api_view(['GET', 'DELETE', 'PUT'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def article_detail(request, article_pk):
     article = get_object_or_404(Article, pk=article_pk)
 
     if request.method == 'GET':
         serializer = ArticleSerializer(article)
-        return Response(serializer.data)
+        if article.like_users.filter(pk=request.user.pk).exists():
+            isLiking = True
+        else:
+            isLiking = False
+        data = {
+            'article': serializer.data,
+            'isLiking': isLiking,
+        }
+        return Response(data)
     
     elif request.method == 'DELETE':
-        article.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if article.user == request.user:
+            article.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
     elif request.method == 'PUT':
-        serializer = ArticleSerializer(article, data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data)
+        if article.user == request.user:
+            serializer = ArticleSerializer(article, data=request.data)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data)
 
 
 @api_view(['GET', 'POST'])
@@ -51,12 +61,12 @@ def article_detail(request, article_pk):
 def comment_list(request, article_pk):
     if request.method == 'GET':
         comments = get_list_or_404(ArticleComment, article_id=article_pk)
-        serializer = CommentSerializer(comments, many=True)
+        serializer = ArticleCommentSerializer(comments, many=True)
         return Response(serializer.data)
     
     if request.method == 'POST':
         article = get_object_or_404(Article, pk=article_pk)
-        serializer = CommentSerializer(data=request.data)
+        serializer = ArticleCommentSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(article=article, user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -66,17 +76,38 @@ def comment_list(request, article_pk):
 @permission_classes([IsAuthenticated])
 def comment_detail(request, comment_pk):
     comment = get_object_or_404(ArticleComment, pk=comment_pk)
+    # comment = ArticleComment.objects.get(pk=comment_pk)
 
     if request.method == 'GET':
-        serializer = CommentSerializer(comment)
+        serializer = ArticleCommentSerializer(comment)
         return Response(serializer.data)
 
     elif request.method == 'DELETE':
-        comment.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if comment.user == request.user:
+            comment.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
     elif request.method == 'PUT':
-        serializer = CommentSerializer(comment, data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data)
+        if comment.user == request.user:
+            serializer = ArticleCommentSerializer(comment, data=request.data)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def likes(request, article_pk):
+    article = get_object_or_404(Article, pk=article_pk)
+    if article.like_users.filter(pk=request.user.pk).exists():
+        article.like_users.remove(request.user)
+        isLiking = False
+    else:
+        article.like_users.add(request.user)
+        isLiking = True
+    context = {
+        'isLiking': isLiking,
+    }
+    return Response(context)
+
+    
