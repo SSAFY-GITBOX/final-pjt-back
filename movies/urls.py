@@ -6,6 +6,7 @@ urlpatterns = [
     # path('movies/', views.movie_list),
     path('movies/<int:movie_pk>/', views.movie_detail),
     path('genres/', views.genre_list),
+    path('movies/genres/<int:genre_id>/init/', views.genre_movie_init),
     path('movies/genres/<int:genre_id>', views.genre_movie_list),
     path('movies/popular/init/', views.popular_movie_init),
     path('movies/popular', views.popular_movie_list),
