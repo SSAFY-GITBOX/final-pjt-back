@@ -40,7 +40,7 @@ class MovieSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie
         fields = '__all__'
-        read_only_fields = ('like_users')
+        read_only_fields = ('like_users',)
 
     def get_comment_rating_avg(self, obj):
         total = 0
