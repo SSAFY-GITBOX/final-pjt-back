@@ -27,6 +27,7 @@ def article_list(request):
 
 
 @api_view(['GET', 'DELETE', 'PUT'])
+@permission_classes([IsAuthenticated])
 def article_detail(request, article_pk):
     article = get_object_or_404(Article, pk=article_pk)
 
@@ -46,6 +47,7 @@ def article_detail(request, article_pk):
 
 
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
 def comment_list(request, article_pk):
     if request.method == 'GET':
         comments = get_list_or_404(ArticleComment, article_id=article_pk)
@@ -61,6 +63,7 @@ def comment_list(request, article_pk):
 
 
 @api_view(['GET', 'DELETE', 'PUT'])
+@permission_classes([IsAuthenticated])
 def comment_detail(request, comment_pk):
     comment = get_object_or_404(ArticleComment, pk=comment_pk)
 
