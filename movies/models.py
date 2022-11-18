@@ -15,6 +15,7 @@ class Actor(models.Model):
 
 
 class Movie(models.Model):
+    like_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='like_movies')
     movie_id = models.IntegerField(primary_key=True)
     title = models.CharField(max_length=100)
     release_date = models.DateField()
