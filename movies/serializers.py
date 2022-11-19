@@ -40,6 +40,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class MovieSerializer(serializers.ModelSerializer):
+    like_count = serializers.IntegerField(source='like_users.count', read_only=True)
     comment_set = CommentSerializer(many=True, read_only=True)
     comment_rating_avg = serializers.SerializerMethodField()
 

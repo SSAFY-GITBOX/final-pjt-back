@@ -134,7 +134,32 @@ def genre_movie_list(request, genre_id):
 def movie_detail(request, movie_pk):
     movie = get_object_or_404(Movie, pk=movie_pk)
     serializer = MovieSerializer(movie)
-    return Response(serializer.data)
+    # 처음 불러올 때도 이 영화를 좋아하는지에 대한 정보가 필요함
+    if movie.like_users.filter(pk=request.user.pk).exists():
+        isLiking = True
+    else:
+        isLiking = False
+    data = {
+        'movie': serializer.data,
+        'isLiking': isLiking
+    }
+    return Response(data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def movie_likes(request, movie_pk):
+    movie = get_object_or_404(Movie, pk=movie_pk)
+    if movie.like_users.filter(pk=request.user.pk).exists():
+        movie.like_users.remove(request.user)
+        isLiking = False
+    else:
+        movie.like_users.add(request.user)
+        isLiking = True
+    context = {
+        'isLiking': isLiking,
+    }
+    return Response(context)
 
 
 # actor detail GET 요청
