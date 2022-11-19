@@ -33,6 +33,7 @@ def article_detail(request, article_pk):
 
     if request.method == 'GET':
         serializer = ArticleSerializer(article)
+        # 처음 불러올 때도 이 게시글을 좋아하는지에 대한 정보가 필요함
         if article.like_users.filter(pk=request.user.pk).exists():
             isLiking = True
         else:
