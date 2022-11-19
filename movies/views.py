@@ -27,11 +27,37 @@ from .serializers import GenreListSerializer, ActorSerializer, CommentSerializer
 #     return Response(serializer.data)
 
 
-# 인기 영화 전체보기 클릭시 1~34페이지 까지, 35페이지 이상 요청할 시 에러 구현해야함
-@api_view(['GET'])
+# 모든 장르 조회
 @permission_classes([IsAuthenticated])
-def popular_movie_list(request):
-    movies = get_list_or_404(Movie)
+@api_view(['GET'])
+def genre_list(request):
+    genres = get_list_or_404(Genre)
+    serializers = GenreListSerializer(genres, many=True)
+    return Response(serializers.data)
+
+
+# 홈 - 최신영화 초기 요청
+@permission_classes([IsAuthenticated])
+@api_view(['GET'])
+def latest_movie_init(request):
+    movies = get_list_or_404(Movie.objects.order_by('-release_date'))
+    init_movies = []
+    for i in range(0, 100):
+        init_movies.append(movies[i])
+    serializer = MovieListSerializer(init_movies, many=True)
+
+    context = {
+        'movies': serializer.data,
+        'movie_length': len(movies)
+    }
+    return Response(context)
+
+
+# 최신 영화 전체 보기
+@permission_classes([IsAuthenticated])
+@api_view(['GET'])
+def latest_movie_list(request):
+    movies = get_list_or_404(Movie.objects.order_by('-release_date'))
     res_movies = []
     page = request.GET.get('page', None)
     if page == None:
@@ -50,16 +76,7 @@ def popular_movie_list(request):
         raise Http404("Question does not exist")
 
 
-# 모든 장르 조회
-@permission_classes([IsAuthenticated])
-@api_view(['GET'])
-def genre_list(request):
-    genres = get_list_or_404(Genre)
-    serializers = GenreListSerializer(genres, many=True)
-    return Response(serializers.data)
-
-
-# 장르 선택 초기 요청
+# 홈 - 장르별 영화 초기 요청
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def genre_movie_init(request, genre_id):
@@ -76,7 +93,8 @@ def genre_movie_init(request, genre_id):
     }
     return Response(context)
 
-# 장르별 영화 조회
+
+# 장르별 영화 전체 보기
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def genre_movie_list(request, genre_id):
@@ -98,18 +116,6 @@ def genre_movie_list(request, genre_id):
         return Response(serializer.data)
     else:
         raise Http404("Question does not exist")
-
-
-# 홈 화면에 노출될 인기영화 초기 요청
-@permission_classes([IsAuthenticated])
-@api_view(['GET'])
-def popular_movie_init(request):
-    movies = get_list_or_404(Movie)
-    page_movies = []
-    for i in range(0, 20):
-        page_movies.append(movies[i])
-    serializer = MovieListSerializer(page_movies, many=True)
-    return Response(serializer.data)
 
 
 # movie detail GET 요청
