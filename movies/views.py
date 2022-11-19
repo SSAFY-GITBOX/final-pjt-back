@@ -14,7 +14,7 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, get_list_or_404
 
 from .models import Movie, Genre, Actor, Comment
-from .serializers import MovieSerializer, MovieListSerializer
+from .serializers import MovieSerializer, MovieListSerializer, SearchedMovieListSerializer
 from .serializers import GenreListSerializer, ActorSerializer, CommentSerializer
 
 # Create your views here.
@@ -25,6 +25,15 @@ from .serializers import GenreListSerializer, ActorSerializer, CommentSerializer
 #     movies = get_list_or_404(Movie)
 #     serializer = MovieSerializer(movies, many=True)
 #     return Response(serializer.data)
+
+# 네브바 - 검색 결과 조회
+@permission_classes([IsAuthenticated])
+@api_view(['GET'])
+def search_movie(request):
+    searched_title = request.GET.get('content', None)
+    movies = Movie.objects.filter(title__contains=searched_title)
+    serializer = SearchedMovieListSerializer(movies, many=True)
+    return Response(serializer.data)
 
 
 # 모든 장르 조회
@@ -102,6 +111,7 @@ def genre_movie_list(request, genre_id):
     movies = Movie.objects.filter(genres=genre)
     res_movies = []
     page = request.GET.get('page', None)
+    print(page)
     if page == None:
         for i in range(0, 30):
             res_movies.append(movies[i])
