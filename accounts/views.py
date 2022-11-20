@@ -14,6 +14,7 @@ from collections import defaultdict
 @permission_classes([IsAuthenticated])
 def profile(request, user_pk):
     User = get_user_model()
+    me = request.user
     profile_user = User.objects.get(pk=user_pk)
 
     # 잔디용 데이터 =========================================================
@@ -48,6 +49,15 @@ def profile(request, user_pk):
         'user': serializer.data,
         'acts': acts
     }
+
+    if me != profile_user:
+        if profile_user.followers.filter(pk=me.pk).exists():
+            isFollowing = True
+        else:
+            profile_user.followers.add(me)
+            isFollowing = False
+        data['isFollowing'] = isFollowing
+
     return Response(data)
 
 
@@ -63,3 +73,21 @@ def profile_image(request, user_pk):
         return Response(serializer.data)
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def follow(request, user_pk):
+    User = get_user_model()
+    me = request.user
+    profile_user = User.objects.get(pk=user_pk)
+    if me != profile_user:
+        if profile_user.followers.filter(pk=me.pk).exists():
+            profile_user.followers.remove(me)
+            isFollowing = False
+        else:
+            profile_user.followers.add(me)
+            isFollowing = True
+        data = {
+            'isFollowing': isFollowing
+        }
+        return Response(data)
+    
