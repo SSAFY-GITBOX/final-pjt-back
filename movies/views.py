@@ -146,6 +146,7 @@ def movie_detail(request, movie_pk):
     return Response(data)
 
 
+# 영화 좋아요
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def movie_likes(request, movie_pk):
