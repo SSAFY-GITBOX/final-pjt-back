@@ -54,7 +54,6 @@ def profile(request, user_pk):
         if profile_user.followers.filter(pk=me.pk).exists():
             isFollowing = True
         else:
-            profile_user.followers.add(me)
             isFollowing = False
         data['isFollowing'] = isFollowing
 
@@ -76,14 +75,17 @@ def profile_image(request, user_pk):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def follow(request, user_pk):
+    print('follow function')
     User = get_user_model()
     me = request.user
     profile_user = User.objects.get(pk=user_pk)
     if me != profile_user:
         if profile_user.followers.filter(pk=me.pk).exists():
+            print('unfollow')
             profile_user.followers.remove(me)
             isFollowing = False
         else:
+            print('follow')
             profile_user.followers.add(me)
             isFollowing = True
         data = {
