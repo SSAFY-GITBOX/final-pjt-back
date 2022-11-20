@@ -105,9 +105,9 @@ def likes(request, article_pk):
     else:
         article.like_users.add(request.user)
         isLiking = True
-    context = {
+    data = {
         'isLiking': isLiking,
     }
-    return Response(context)
+    return Response(data)
 
     
