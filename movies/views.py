@@ -27,8 +27,8 @@ from .serializers import GenreListSerializer, ActorSerializer, CommentSerializer
 #     return Response(serializer.data)
 
 # 네브바 - 검색 결과 조회
-@permission_classes([IsAuthenticated])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def search_movie(request):
     searched_title = request.GET.get('content', None)
     movies = Movie.objects.filter(title__contains=searched_title)
@@ -37,8 +37,8 @@ def search_movie(request):
 
 
 # 모든 장르 조회
-@permission_classes([IsAuthenticated])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def genre_list(request):
     genres = get_list_or_404(Genre)
     serializers = GenreListSerializer(genres, many=True)
@@ -46,8 +46,8 @@ def genre_list(request):
 
 
 # 홈 - 최신영화 초기 요청
-@permission_classes([IsAuthenticated])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def latest_movie_init(request):
     movies = get_list_or_404(Movie.objects.order_by('-release_date'))
     init_movies = []
@@ -63,8 +63,8 @@ def latest_movie_init(request):
 
 
 # 최신 영화 전체 보기
-@permission_classes([IsAuthenticated])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def latest_movie_list(request):
     movies = get_list_or_404(Movie.objects.order_by('-release_date'))
     res_movies = []
@@ -86,8 +86,8 @@ def latest_movie_list(request):
 
 
 # 홈 - 장르별 영화 초기 요청
-@permission_classes([IsAuthenticated])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def genre_movie_init(request, genre_id):
     movies = Movie.objects.filter(genres=genre_id).order_by('-vote_count')
     init_movies = []
@@ -104,8 +104,8 @@ def genre_movie_init(request, genre_id):
 
 
 # 장르별 영화 전체 보기
-@permission_classes([IsAuthenticated])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def genre_movie_list(request, genre_id):
     genre = get_object_or_404(Genre, pk=genre_id)
     movies = Movie.objects.filter(genres=genre)
@@ -129,8 +129,8 @@ def genre_movie_list(request, genre_id):
 
 
 # movie detail GET 요청
-@permission_classes([IsAuthenticated])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def movie_detail(request, movie_pk):
     movie = get_object_or_404(Movie, pk=movie_pk)
     serializer = MovieSerializer(movie)
@@ -164,8 +164,8 @@ def movie_likes(request, movie_pk):
 
 
 # actor detail GET 요청
-@permission_classes([IsAuthenticated])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def actor_detail(request, actor_pk):
     actor = get_object_or_404(Actor, pk=actor_pk)
     serializer = ActorSerializer(actor)
@@ -173,8 +173,8 @@ def actor_detail(request, actor_pk):
 
 
 # 영화 코멘트 생성 요청
-@permission_classes([IsAuthenticated])
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def comment_create(request, movie_pk):
     user = request.user
     movie = get_object_or_404(Movie, pk=movie_pk)
@@ -185,8 +185,8 @@ def comment_create(request, movie_pk):
 
 
 # 영화 코멘트 조회, 수정, 삭제
-@permission_classes([IsAuthenticated])
 @api_view(['GET', 'DELETE', 'PUT'])
+@permission_classes([IsAuthenticated])
 def comment_detail(request, comment_pk):
     comment = get_object_or_404(Comment, pk=comment_pk)
 
