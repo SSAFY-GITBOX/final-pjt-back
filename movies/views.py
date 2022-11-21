@@ -111,7 +111,6 @@ def genre_movie_list(request, genre_id):
     movies = Movie.objects.filter(genres=genre)
     res_movies = []
     page = request.GET.get('page', None)
-    print(page)
     if page == None:
         for i in range(0, 30):
             res_movies.append(movies[i])
