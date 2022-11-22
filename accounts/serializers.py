@@ -17,6 +17,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     User = get_user_model()
     followers = UserSerializer(many=True, read_only=True)
     followers_cnt = serializers.IntegerField(source='followers.count', read_only=True)
+    followings = UserSerializer(many=True, read_only=True)
     followings_cnt = serializers.IntegerField(source='followings.count', read_only=True)
     like_articles = ArticleListSerializer(many=True, read_only=True)
     article_set = ArticleListSerializer(many=True, read_only=True)
@@ -27,5 +28,5 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
-        read_only_fields = ('profile_image', 'followings',)
+        read_only_fields = ('profile_image',)
         
