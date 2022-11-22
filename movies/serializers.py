@@ -8,6 +8,7 @@ class SearchedMovieListSerializer(serializers.ModelSerializer):
         model = Movie
         fields = ('movie_id', 'poster_path', 'title', 'overview', 'genres')
 
+
 class GenreListSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -32,11 +33,12 @@ class ActorSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
+    movie_title = serializers.CharField(source='movie.title', read_only=True)
 
     class Meta:
         model = Comment
         fields = '__all__'
-        read_only_fields = ('movie', 'user', )
+        read_only_fields = ('movie', 'user',)
 
 
 class MovieSerializer(serializers.ModelSerializer):

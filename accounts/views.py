@@ -66,20 +66,30 @@ def profile(request, user_pk):
     return Response(data)
 
 
-@api_view(['POST'])
+@api_view(['POST', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def profile_image(request, user_pk):
-    User = get_user_model()
-    me = request.user
-    profile_user = User.objects.get(pk=user_pk)
-    if me == profile_user:
-        form = UserForm(request.POST, request.FILES, instance=profile_user)
-        if form.is_valid():
-            form = form.save(commit=False)
-            form.profile_image_url = request.FILES.get('image')
-            form.save()
-        serializer = ProfileSerializer(profile_user)
-        return Response(serializer.data)
+    if request.method == 'POST':
+        User = get_user_model()
+        me = request.user
+        profile_user = User.objects.get(pk=user_pk)
+        if me == profile_user:
+            form = UserForm(request.POST, request.FILES, instance=profile_user)
+            if form.is_valid():
+                form = form.save(commit=False)
+                form.profile_image_url = request.FILES.get('image')
+                form.save()
+            serializer = ProfileSerializer(profile_user)
+            return Response(serializer.data)
+
+    if request.method == 'DELETE':
+        User = get_user_model()
+        me = request.user
+        profile_user = User.objects.get(pk=user_pk)
+        if me == profile_user:
+            profile_user.profile_image_url = ''
+            serializer = ProfileSerializer(profile_user)
+            return Response(serializer.data)
 
 
 @api_view(['POST'])
