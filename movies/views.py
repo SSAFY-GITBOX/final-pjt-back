@@ -17,6 +17,8 @@ from .models import Movie, Genre, Actor, Comment
 from .serializers import MovieSerializer, MovieListSerializer, SearchedMovieListSerializer
 from .serializers import GenreListSerializer, ActorSerializer, CommentSerializer
 
+# import requests
+
 # Create your views here.
 
 # 영화 전체 조회 없어도 될듯?
@@ -206,7 +208,6 @@ def comment_detail(request, comment_pk):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-
 # @api_view(['GET'])
 # def makeFixtures(request):
     # # 1. Top Rated Movies API request ===================================================================
@@ -243,20 +244,23 @@ def comment_detail(request, comment_pk):
     #             tmp.profile_path = actor['profile_path']
     #             tmp.save()
     #         count += 1
-    #         if count == 3:
+    #         if count == 10:
     #             break
 
-    # # 3. Actor - Movie N:M 관계 설정 ======================================================================
+    # 3. Actor - Movie N:M 관계 설정 ======================================================================
     # movies = Movie.objects.all()
     # for movie in movies:
     #     res = requests.get(f"https://api.themoviedb.org/3/movie/{movie.movie_id}/credits?api_key=8d8e9b9672f4d1a183be6806ad451223&language=ko-KR")
     #     if res.status_code == 200:
     #         count = 0
     #         for cast in res.json()['cast']:
-    #             actor = Actor.objects.get(pk=cast['id'])
-    #             movie.actors.add(actor)
-    #             count += 1
-    #             if count == 3:
+    #             try:
+    #                 actor = Actor.objects.get(pk=cast['id'])
+    #                 movie.actors.add(actor)
+    #                 count += 1
+    #                 if count == 10:
+    #                     break
+    #             except:
     #                 break
 
     # # 4. Query to Json =====================================================================================
@@ -274,5 +278,5 @@ def comment_detail(request, comment_pk):
     # actors_json = serializers.serialize('json', actors)
     # with open(r'actors.json', 'w', encoding="UTF-8") as actors_file:
     #     actors_file.write(actors_json)
-    # return
+    # return Response(actors_json.data)
 
