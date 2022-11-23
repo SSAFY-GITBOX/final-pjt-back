@@ -16,7 +16,8 @@ from .models import Article, ArticleComment
 def article_list(request):
     if request.method == 'GET':
         page = int(request.GET.get('page'))
-        articles = Article.objects.all().order_by('-created_at')
+        searched_title = request.GET.get('content', None)
+        articles = Article.objects.filter(title__contains=searched_title).order_by('-created_at')
         res_article = []
         for i in range((page-1)*10, page*10):
             if i < len(articles):
@@ -114,5 +115,3 @@ def likes(request, article_pk):
         'isLiking': isLiking,
     }
     return Response(data)
-
-    
