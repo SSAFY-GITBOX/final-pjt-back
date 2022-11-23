@@ -215,7 +215,7 @@ def comment_detail(request, comment_pk):
 
 
 # 추천 영화 장르 별 개수
-# @api_view(['GET'])
+@api_view(['GET'])
 # @permission_classes([IsAuthenticated])
 def recommend(request, user_pk):
     User = get_user_model()
@@ -299,12 +299,14 @@ def recommend(request, user_pk):
         recommendCnt += cnt
         if recommendCnt >= 10:
             break
+    print('@@@@@ 기본으로 랜덤 무비 5개 @@@@@')
     randomMovies = list(random.choices(Movie.objects.all(), k=5))
     data = {
         'genreScore': genreScore, 
         'recommended': recommendedMovies,
         'random': randomMovies,
     }
+    print('@@@@@ 끝 @@@@@')
     return Response(data)
 
 
