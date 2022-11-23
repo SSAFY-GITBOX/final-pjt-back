@@ -29,4 +29,16 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = '__all__'
         read_only_fields = ('profile_image',)
-        
+
+
+class forRecommendUserSerializer(serializers.ModelSerializer):
+    User = get_user_model()
+    followings = ProfileSerializer(many=True, read_only=True)
+    followings_cnt = serializers.IntegerField(source='followings.count', read_only=True)
+    like_movies = MovieSerializer(many=True, read_only=True)
+    comment_set = CommentSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = User
+        fields = '__all__'
+        read_only_fields = ('profile_image',)
