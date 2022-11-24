@@ -227,7 +227,6 @@ def recommend(request, user_pk):
         genreScoreForChart[genre.name] = 0
     # 내 점수 반영
     my_visited = defaultdict(float)  # 내 영화 방문 체크 용
-    all_visited = defaultdict(float)
     # 내 장르 점수 계산
     genreScore = defaultdict(float)
     # 내 댓글 평점 반영
@@ -236,7 +235,6 @@ def recommend(request, user_pk):
         if my_visited[str(comment.movie_id)]:
             continue
         my_visited[str(comment.movie_id)] = 1  # 방문 체크
-        all_visited[str(comment.movie_id)] = 1
         # 해당 댓글을 남긴 영화
         movie = Movie.objects.get(pk=comment.movie_id)
         sign = comment.rating - 5  # 계산에 쓸 부호
@@ -253,7 +251,6 @@ def recommend(request, user_pk):
         # 평점을 매겼던 영화는 좋아요 점수 반영 안함
         if my_visited[str(movie.pk)]:
             continue
-        all_visited[str(movie.pk)] = 1
         for genre in movie.genres.all():
             genreScore[str(genre.id)] += 2.0
             genreScoreForChart[str(genre.name)] += 2.0
@@ -272,7 +269,6 @@ def recommend(request, user_pk):
                 if visited[str(comment.movie_id)]:
                     continue
                 visited[str(comment.movie_id)] = 1  # 방문 체크
-                all_visited[str(comment.movie_id)] = 1
                 # 해당 댓글을 남긴 영화
                 movie = Movie.objects.get(pk=comment.movie_id)
                 sign = comment.rating - 5  # 계산에 쓸 부호
@@ -289,7 +285,6 @@ def recommend(request, user_pk):
                 # 평점을 매겼던 영화는 좋아요 점수 반영 안함
                 if visited[str(movie.pk)]:
                     continue
-                all_visited[str(movie.pk)] = 1
                 for genre in movie.genres.all():
                     yourGenreScore[str(genre.id)] += 2.0
                     yourGenreScoreForChart[str(genre.name)] += 2.0
@@ -323,9 +318,9 @@ def recommend(request, user_pk):
     # 기본으로 제공하는 랜덤 무비 5개
     random_movies = list(random.choices(Movie.objects.all(), k=5))
     random_movies = sorted(random_movies, key=lambda x: x.vote_count, reverse=True)  # 평가 수를 기준으로 내림차순 정렬
-    for random_movie in random_movies:
-        if all_visited[str(random_movie.pk)]:
-            random_movies.remove(random_movie)
+    for idx, random_movie in enumerate(random_movies):
+        if random_movie in recommended_movies:
+            del random_movies[idx]
     random_serializer = MovieSerializer(random_movies, many=True)
     data = {
         'genreScore': genreScoreForChart,
