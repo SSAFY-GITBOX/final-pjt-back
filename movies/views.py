@@ -313,15 +313,16 @@ def recommend(request, user_pk):
         recommend_cnt += cnt
         if recommend_cnt >= 10:
             break
-    recommended_movies = sorted(recommended_movies, key=lambda x: x.vote_count, reverse=True)  # 평가 수를 기준으로 내림차순 정렬
+    recommended_movies = list(set(sorted(recommended_movies, key=lambda x: x.vote_count, reverse=True)))  # 중복 제거, 평가 수를 기준으로 내림차순 정렬
     recommend_serializer = MovieSerializer(recommended_movies, many=True)
     # 기본으로 제공하는 랜덤 무비 5개
     random_movies = list(random.choices(Movie.objects.all(), k=5))
-    random_movies = sorted(random_movies, key=lambda x: x.vote_count, reverse=True)  # 평가 수를 기준으로 내림차순 정렬
-    for idx, random_movie in enumerate(random_movies):
+    random_movies = list(set(sorted(random_movies, key=lambda x: x.vote_count, reverse=True)))  # 중복 제거, 평가 수를 기준으로 내림차순 정렬
+    for idx, random_movie in enumerate(random_movies):  # 추천 영화에 있는 랜덤 영화 중복 제거
         for recommended_movie in recommended_movies:
             if random_movie.pk == recommended_movie.pk:
                 del random_movies[idx]
+                break
     random_serializer = MovieSerializer(random_movies, many=True)
     data = {
         'genreScore': genreScoreForChart,
