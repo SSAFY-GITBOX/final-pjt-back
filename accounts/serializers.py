@@ -1,8 +1,10 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import User
 from articles.serializers import ArticleListSerializer, ArticleCommentSerializer
 from movies.serializers import MovieSerializer, CommentSerializer
+
+
+User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):

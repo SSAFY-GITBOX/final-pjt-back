@@ -224,6 +224,10 @@ def recommend(request, user_pk):
     my_visited = defaultdict(float)  # 내 영화 방문 체크 용
     # 내 장르 점수 계산
     genreScore = defaultdict(float)
+    genreScoreForChart = dict()
+    all_genres = Genre.objects.all()
+    for genre in all_genres:
+        genreScoreForChart[genre.name] = 0
     print('@@@@@ 내 댓글 평점 반영 @@@@@')
     for comment in me.comment_set.all():
         # 같은 영화의 댓글 중복 계산 방지 (먼저 단 댓글이 반영 됨)
@@ -240,6 +244,7 @@ def recommend(request, user_pk):
         score = (comment.rating - 5) // 2 + sign  # 댓글 평점 점수
         for genre in movie.genres.all():
             genreScore[str(genre.id)] += float(score)
+            genreScoreForChart[str(genre.name)] += float(score)
     print('@@@@@ 내 좋아요 평점 반영 @@@@@')
     for movie in me.like_movies.all():
         # 평점을 매겼던 영화는 좋아요 점수 반영 안함
@@ -247,9 +252,12 @@ def recommend(request, user_pk):
             continue
         for genre in movie.genres.all():
             genreScore[str(genre.id)] += 2.0
-    print(genreScore)
+            genreScoreForChart[str(genre.name)] += float(score)
     print('@@@@@ 팔로우 유저들 점수 반영 @@@@@')
     yourGenreScore = defaultdict(float)  # 팔로우 유저들의 점수 합 (나중에 평균화)
+    yourGenreScoreForChart = dict()
+    for genre in all_genres:
+        yourGenreScoreForChart[genre.name] = 0
     for you in me.followings.all():
         visited = defaultdict(float)  # 영화 방문 체크 용
         # 장르 점수 계산
@@ -269,6 +277,7 @@ def recommend(request, user_pk):
             score = (comment.rating - 5) // 2 + sign  # 댓글 평점 점수
             for genre in movie.genres.all():
                 yourGenreScore[str(genre.id)] += float(score)
+                yourGenreScoreForChart[str(genre.name)] += float(score)
         print(f'@@@@@ {you} 좋아요 평점 반영 @@@@@')
         for movie in you.like_movies.all():
             # 평점을 매겼던 영화는 좋아요 점수 반영 안함
@@ -276,10 +285,13 @@ def recommend(request, user_pk):
                 continue
             for genre in movie.genres.all():
                 yourGenreScore[str(genre.id)] += 2.0
+                yourGenreScoreForChart[str(genre.name)] += float(score)
     print('@@@@@ 팔로우 유저들 평균화 @@@@@')
     follow_cnt = len(me.followings.all())
     for key, value in yourGenreScore.items():
         genreScore[key] += value / float(follow_cnt)  # 평균화해서 기존 스코어에 더함
+    for key, value in yourGenreScoreForChart.items():
+        genreScoreForChart[key] += value / float(follow_cnt)
     print('@@@@@ 장르별 랜덤으로 뽑을 개수 구하기 @@@@@')
     scoreSum = sum(list(genreScore.values()))
     genreCnt = defaultdict(int)
@@ -307,7 +319,7 @@ def recommend(request, user_pk):
     random_movies = sorted(random_movies, key=lambda x: x.vote_count, reverse=True)  # 평가 수를 기준으로 내림차순 정렬
     random_serializer = MovieSerializer(random_movies, many=True)
     data = {
-        'genreScore': genreScore,
+        'genreScore': genreScoreForChart,
         'recommended': recommend_serializer.data,
         'random': random_serializer.data,
     }
