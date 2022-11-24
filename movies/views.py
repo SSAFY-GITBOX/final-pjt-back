@@ -298,26 +298,26 @@ def recommend(request, user_pk):
             genreScore[key] += value / float(follow_cnt)  # 평균화해서 기존 스코어에 더함
         for key, value in yourGenreScoreForChart.items():
             genreScoreForChart[key] += value / float(follow_cnt)
-        # 장르별 랜덤으로 뽑을 개수 구하기
-        scoreSum = sum(list(genreScore.values()))
-        genreCnt = defaultdict(int)
-        for key, value in genreScore.items():
-            if value <= 0:
-                continue
-            genre_cnt = int(15 * (value / scoreSum))
-            if genre_cnt == 0:
-                continue
-            genreCnt[key] = genre_cnt
-        # 추천 영화 리스트에 무비 오브젝트 넣기 
-        recommend_cnt = 0
-        recommended_movies = []
-        genreCnt = dict(sorted(genreCnt.items(), key=lambda x: x[1], reverse=True))  # 카운트 많은 순으로 정렬
-        for key, cnt in genreCnt.items():  
-            genre = Genre.objects.get(pk=key)
-            recommended_movies += random.choices(genre.movie_set.all(), k=cnt)
-            recommend_cnt += cnt
-            if recommend_cnt >= 10:
-                break
+    # 장르별 랜덤으로 뽑을 개수 구하기
+    scoreSum = sum(list(genreScore.values()))
+    genreCnt = defaultdict(int)
+    for key, value in genreScore.items():
+        if value <= 0:
+            continue
+        genre_cnt = int(15 * (value / scoreSum))
+        if genre_cnt == 0:
+            continue
+        genreCnt[key] = genre_cnt
+    # 추천 영화 리스트에 무비 오브젝트 넣기 
+    recommend_cnt = 0
+    recommended_movies = []
+    genreCnt = dict(sorted(genreCnt.items(), key=lambda x: x[1], reverse=True))  # 카운트 많은 순으로 정렬
+    for key, cnt in genreCnt.items():  
+        genre = Genre.objects.get(pk=key)
+        recommended_movies += random.choices(genre.movie_set.all(), k=cnt)
+        recommend_cnt += cnt
+        if recommend_cnt >= 10:
+            break
     recommended_movies = sorted(recommended_movies, key=lambda x: x.vote_count, reverse=True)  # 평가 수를 기준으로 내림차순 정렬
     recommend_serializer = MovieSerializer(recommended_movies, many=True)
     # 기본으로 제공하는 랜덤 무비 5개
