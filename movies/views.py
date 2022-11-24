@@ -221,15 +221,15 @@ def recommend(request, user_pk):
     User = get_user_model()
     me = User.objects.get(pk=user_pk)
     print('@@@@@ 내 점수 반영 @@@@@')
-    myVisited = defaultdict(float)  # 내 영화 방문 체크 용
+    my_visited = defaultdict(float)  # 내 영화 방문 체크 용
     # 내 장르 점수 계산
     genreScore = defaultdict(float)
     print('@@@@@ 내 댓글 평점 반영 @@@@@')
     for comment in me.comment_set.all():
         # 같은 영화의 댓글 중복 계산 방지 (먼저 단 댓글이 반영 됨)
-        if myVisited[str(comment.movie_id)]:
+        if my_visited[str(comment.movie_id)]:
             continue
-        myVisited[str(comment.movie_id)] = 1  # 방문 체크
+        my_visited[str(comment.movie_id)] = 1  # 방문 체크
         # 해당 댓글을 남긴 영화
         movie = Movie.objects.get(pk=comment.movie_id)
         sign = comment.rating - 5  # 계산에 쓸 부호
@@ -243,10 +243,11 @@ def recommend(request, user_pk):
     print('@@@@@ 내 좋아요 평점 반영 @@@@@')
     for movie in me.like_movies.all():
         # 평점을 매겼던 영화는 좋아요 점수 반영 안함
-        if myVisited[str(movie.pk)]:
+        if my_visited[str(movie.pk)]:
             continue
         for genre in movie.genres.all():
             genreScore[str(genre.id)] += 2.0
+    print(genreScore)
     print('@@@@@ 팔로우 유저들 점수 반영 @@@@@')
     yourGenreScore = defaultdict(float)  # 팔로우 유저들의 점수 합 (나중에 평균화)
     for you in me.followings.all():
@@ -290,21 +291,25 @@ def recommend(request, user_pk):
             continue
         genreCnt[key] = genre_cnt
     print('@@@@@ 추천 영화 리스트에 무비 오브젝트 넣기 @@@@@')
-    recommendCnt = 0
-    recommendedMovies = []
-    genreCnt = dict(sorted(genreCnt.items(), key=lambda x: x[1], reverse=True))  # 카운트가 많은 것부터  
+    recommend_cnt = 0
+    recommended_movies = []
+    genreCnt = dict(sorted(genreCnt.items(), key=lambda x: x[1], reverse=True))  # 카운트 많은 순으로 정렬
     for key, cnt in genreCnt.items():  
         genre = Genre.objects.get(pk=key)
-        recommendedMovies += random.choices(genre.movie_set.all(), k=cnt)
-        recommendCnt += cnt
-        if recommendCnt >= 10:
+        recommended_movies += random.choices(genre.movie_set.all(), k=cnt)
+        recommend_cnt += cnt
+        if recommend_cnt >= 10:
             break
-    print('@@@@@ 기본으로 랜덤 무비 5개 @@@@@')
-    randomMovies = list(random.choices(Movie.objects.all(), k=5))
+    recommended_movies = sorted(recommended_movies, key=lambda x: x.vote_count, reverse=True)  # 평가 수를 기준으로 내림차순 정렬
+    recommend_serializer = MovieSerializer(recommended_movies, many=True)  
+    print('@@@@@ 기본 제공 랜덤 무비 5개 @@@@@')
+    random_movies = list(random.choices(Movie.objects.all(), k=5))
+    random_movies = sorted(random_movies, key=lambda x: x.vote_count, reverse=True)  # 평가 수를 기준으로 내림차순 정렬
+    random_serializer = MovieSerializer(random_movies, many=True)
     data = {
-        'genreScore': genreScore, 
-        'recommended': recommendedMovies,
-        'random': randomMovies,
+        'genreScore': genreScore,
+        'recommended': recommend_serializer.data,
+        'random': random_serializer.data,
     }
     print('@@@@@ 끝 @@@@@')
     return Response(data)
