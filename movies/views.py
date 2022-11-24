@@ -319,8 +319,9 @@ def recommend(request, user_pk):
     random_movies = list(random.choices(Movie.objects.all(), k=5))
     random_movies = sorted(random_movies, key=lambda x: x.vote_count, reverse=True)  # 평가 수를 기준으로 내림차순 정렬
     for idx, random_movie in enumerate(random_movies):
-        if random_movie in recommended_movies:
-            del random_movies[idx]
+        for recommended_movie in recommended_movies:
+            if random_movie.pk == recommended_movie.pk:
+                del random_movies[idx]
     random_serializer = MovieSerializer(random_movies, many=True)
     data = {
         'genreScore': genreScoreForChart,
