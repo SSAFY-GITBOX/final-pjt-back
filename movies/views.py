@@ -221,15 +221,15 @@ def recommend(request, user_pk):
     User = get_user_model()
     me = User.objects.get(pk=user_pk)
     follow_cnt = len(me.followings.all())
+    genreScoreForChart = dict()
+    for genre in all_genres:
+        genreScoreForChart[genre.name] = 0
     if follow_cnt:
         # 내 점수 반영
         my_visited = defaultdict(float)  # 내 영화 방문 체크 용
         # 내 장르 점수 계산
         genreScore = defaultdict(float)
-        genreScoreForChart = dict()
         all_genres = Genre.objects.all()
-        for genre in all_genres:
-            genreScoreForChart[genre.name] = 0
         # 내 댓글 평점 반영
         for comment in me.comment_set.all():
             # 같은 영화의 댓글 중복 계산 방지 (먼저 단 댓글이 반영 됨)
