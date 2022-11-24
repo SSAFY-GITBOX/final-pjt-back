@@ -293,6 +293,9 @@ def recommend(request, user_pk):
             genreScore[key] += value / float(follow_cnt)  # 평균화해서 기존 스코어에 더함
         for key, value in yourGenreScoreForChart.items():
             genreScoreForChart[key] += value / float(follow_cnt)
+    for key, value in genreScoreForChart.items():  # 차트용 데이터에 음수 값은 굳이 필요 없음
+        if value < 0:
+            genreScoreForChart[key] = 0
     # 장르별 랜덤으로 뽑을 개수 구하기
     scoreSum = sum(list(genreScore.values()))
     genreCnt = defaultdict(int)
