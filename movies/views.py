@@ -222,6 +222,7 @@ def recommend(request, user_pk):
     me = User.objects.get(pk=user_pk)
     follow_cnt = len(me.followings.all())
     genreScoreForChart = dict()
+    all_genres = Genre.objects.all()
     for genre in all_genres:
         genreScoreForChart[genre.name] = 0
     if follow_cnt:
@@ -229,7 +230,6 @@ def recommend(request, user_pk):
         my_visited = defaultdict(float)  # 내 영화 방문 체크 용
         # 내 장르 점수 계산
         genreScore = defaultdict(float)
-        all_genres = Genre.objects.all()
         # 내 댓글 평점 반영
         for comment in me.comment_set.all():
             # 같은 영화의 댓글 중복 계산 방지 (먼저 단 댓글이 반영 됨)
@@ -254,7 +254,7 @@ def recommend(request, user_pk):
                 continue
             for genre in movie.genres.all():
                 genreScore[str(genre.id)] += 2.0
-                genreScoreForChart[str(genre.name)] += float(score)
+                genreScoreForChart[str(genre.name)] += 2.0
         # 팔로우 유저들 점수 반영
         yourGenreScore = defaultdict(float)  # 팔로우 유저들의 점수 합 (나중에 평균화)
         yourGenreScoreForChart = dict()
@@ -287,7 +287,7 @@ def recommend(request, user_pk):
                     continue
                 for genre in movie.genres.all():
                     yourGenreScore[str(genre.id)] += 2.0
-                    yourGenreScoreForChart[str(genre.name)] += float(score)
+                    yourGenreScoreForChart[str(genre.name)] += 2.0
         # 팔로우 유저 점수 평균화
         for key, value in yourGenreScore.items():
             genreScore[key] += value / float(follow_cnt)  # 평균화해서 기존 스코어에 더함
@@ -320,6 +320,9 @@ def recommend(request, user_pk):
     # 기본으로 제공하는 랜덤 무비 5개
     random_movies = list(random.choices(Movie.objects.all(), k=5))
     random_movies = sorted(random_movies, key=lambda x: x.vote_count, reverse=True)  # 평가 수를 기준으로 내림차순 정렬
+    for random_movie in random_movies:
+        if visited[str(random_movie.pk)]:
+            random_movies.remove(random_movie)
     random_serializer = MovieSerializer(random_movies, many=True)
     data = {
         'genreScore': genreScoreForChart,
