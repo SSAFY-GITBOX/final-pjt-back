@@ -232,3 +232,9 @@ Play Trailer 버튼 클릭 시 **예고편**이 재생됩니다.
   화면 배치나 CSS 적용은 평소에 많이 해본 적 없는 구현이어서 좀 복잡했지만 많이 찾아보고 생각하면서
   부족하지만 프로젝트를 통해서 여러 구현방법들을 배울 수 있었고, 지금까지 배웠던 내용들이 어떻게 연결되는지도 학습하게 된 좋은 시간이었습니다. 
   ```
+
+<br>
+
+## 기술스택
+
+![img](README.assets/img.jpg)![img](README.assets/img-1669334255908-1.jpg)![img](README.assets/img-1669334255908-2.jpg)![img](README.assets/img-1669334307714-16.jpg)![img](README.assets/img-1669334302993-13.jpg)
